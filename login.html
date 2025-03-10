@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYTC Academic System - Login</title>
+    <!-- Material Design Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/4.0.0/font/MaterialIcons.min.css">
+    <!-- Material Design Components Web -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --mdc-theme-primary: #1976d2;
+            --mdc-theme-secondary: #03a9f4;
+            --mdc-theme-background: #f5f5f5;
+            --mdc-theme-surface: #ffffff;
+            --mdc-theme-error: #b00020;
+            --mdc-theme-on-primary: #ffffff;
+            --mdc-theme-on-secondary: #000000;
+            --mdc-theme-on-surface: #000000;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Roboto, sans-serif;
+            background-color: var(--mdc-theme-background);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: var(--mdc-theme-primary);
+            color: var(--mdc-theme-on-primary);
+            padding: 12px 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header__title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .login-card {
+            background-color: var(--mdc-theme-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
+        }
+
+        .login-card__title {
+            margin: 0 0 20px;
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--mdc-theme-primary);
+            text-align: center;
+        }
+
+        .login-card__logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .login-card__logo img {
+            max-width: 120px;
+            height: auto;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .mdc-text-field {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .login-form__actions {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .login-form__submit {
+            width: 100%;
+        }
+
+        .login-form__links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .login-form__link {
+            color: var(--mdc-theme-primary);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .login-form__link:hover {
+            opacity: 0.8;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .connection-status {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            color: rgba(0, 0, 0, 0.6);
+            display: none;
+        }
+
+        .status-offline {
+            display: block;
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .connection-status.status-online {
+            display: block;
+            background-color: #d4edda;
+            color: #155724;
+            animation: fadeOut 2s forwards;
+            animation-delay: 3s;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                display: none;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .login-card {
+                box-shadow: none;
+                padding: 16px;
+            }
+
+            .main-content {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1 class="header__title">KYTC Academic System</h1>
+    </header>
+
+    <main class="main-content">
+        <div class="login-card">
+            <div class="login-card__logo">
+                <!-- Placeholder image for KYTC logo -->
+                <img src="/api/placeholder/120/120" alt="KYTC Logo">
+            </div>
+            <h2 class="login-card__title">Sign In</h2>
+            <form id="loginForm" class="login-form">
+                <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon" id="email-field">
+                    <i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading">email</i>
+                    <input class="mdc-text-field__input" type="email" id="email" required>
+                    <div class="mdc-notched-outline">
+                        <div class="mdc-notched-outline__leading"></div>
+                        <div class="mdc-notched-outline__notch">
+                            <label for="email" class="mdc-floating-label">Email</label>
+                        </div>
+                        <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                </div>
+
+                <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon mdc-text-field--with-trailing-icon" id="password-field">
+                    <i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading">lock</i>
+                    <input class="mdc-text-field__input" type="password" id="password" required>
+                    <i class="material-icons mdc-text-field__icon mdc-text-field__icon--trailing" tabindex="0" role="button" id="password-toggle">visibility_off</i>
+                    <div class="mdc-notched-outline">
+                        <div class="mdc-notched-outline__leading"></div>
+                        <div class="mdc-notched-outline__notch">
+                            <label for="password" class="mdc-floating-label">Password</label>
+                        </div>
+                        <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                </div>
+
+                <div class="login-form__actions">
+                    <button class="mdc-button mdc-button--raised login-form__submit" id="login-button">
+                        <span class="mdc-button__ripple"></span>
+                        <span class="mdc-button__label">Login</span>
+                    </button>
+                </div>
+
+                <div class="login-form__links">
+                    <a href="#" class="login-form__link" id="forgot-password">Forgot Password?</a>
+                    <a href="#" class="login-form__link" id="register">Register as Student</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Khan Younis Training College. All rights reserved.</p>
+    </footer>
+
+    <div id="connection-status" class="connection-status">
+        Checking connection...
+    </div>
+
+    <!-- Material Components Web JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Material Design Components
+            const emailField = new mdc.textField.MDCTextField(document.getElementById('email-field'));
+            const passwordField = new mdc.textField.MDCTextField(document.getElementById('password-field'));
+            const loginButton = new mdc.ripple.MDCRipple(document.getElementById('login-button'));
+            
+            // Password visibility toggle
+            const passwordToggle = document.getElementById('password-toggle');
+            const passwordInput = document.getElementById('password');
+            
+            passwordToggle.addEventListener('click', function() {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                passwordToggle.textContent = isPassword ? 'visibility' : 'visibility_off';
+            });
+            
+            // Login form submission
+            const loginForm = document.getElementById('loginForm');
+            
+            loginForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const email = emailField.value.trim();
+                const password = passwordField.value.trim();
+                
+                if (!email || !password) {
+                    alert('Please enter both email and password.');
+                    return;
+                }
+                
+                // Show loading state
+                loginButton.disabled = true;
+                document.getElementById('login-button').querySelector('.mdc-button__label').textContent = 'Logging in...';
+                
+                // Simulate login process (replace with actual Firebase Auth in production)
+                setTimeout(function() {
+                    console.log('Login attempt:', { email });
+                    
+                    // Simulate successful login and redirect based on role
+                    // In production, this would check Firebase Auth and user role
+                    if (email.includes('admin')) {
+                        window.location.href = '/admin/dashboard';
+                    } else if (email.includes('instructor')) {
+                        window.location.href = '/instructor/dashboard';
+                    } else {
+                        window.location.href = '/student/dashboard';
+                    }
+                    
+                    // Reset form (in case login fails)
+                    loginButton.disabled = false;
+                    document.getElementById('login-button').querySelector('.mdc-button__label').textContent = 'Login';
+                }, 1500);
+            });
+            
+            // Navigation links
+            document.getElementById('forgot-password').addEventListener('click', function(event) {
+                event.preventDefault();
+                window.location.href = '/forgot-password';
+            });
+            
+            document.getElementById('register').addEventListener('click', function(event) {
+                event.preventDefault();
+                window.location.href = '/register';
+            });
+            
+            // Setup network status monitoring
+            function updateConnectionStatus() {
+                const statusIndicator = document.getElementById('connection-status');
+                const isOnline = navigator.onLine;
+                
+                if (isOnline) {
+                    statusIndicator.textContent = 'Online';
+                    statusIndicator.className = 'connection-status status-online';
+                } else {
+                    statusIndicator.textContent = 'Offline - Please check your internet connection';
+                    statusIndicator.className = 'connection-status status-offline';
+                }
+            }
+            
+            // Add event listeners for online/offline events
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+            
+            // Initialize connection status
+            updateConnectionStatus();
+        });
+    </script>
+</body>
+</html>
