@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYTC Academic System - View Marks</title>
+    <!-- Material Design Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/4.0.0/font/MaterialIcons.min.css">
+    <!-- Material Design Components Web -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --mdc-theme-primary: #1976d2;
+            --mdc-theme-secondary: #03a9f4;
+            --mdc-theme-background: #f5f5f5;
+            --mdc-theme-surface: #ffffff;
+            --mdc-theme-error: #b00020;
+            --mdc-theme-on-primary: #ffffff;
+            --mdc-theme-on-secondary: #000000;
+            --mdc-theme-on-surface: #000000;
+            --drawer-width: 256px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Roboto, sans-serif;
+            background-color: var(--mdc-theme-background);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* App Bar */
+        .app-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background-color: var(--mdc-theme-primary);
+            color: var(--mdc-theme-on-primary);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .app-bar__menu-button {
+            margin-right: 16px;
+            color: var(--mdc-theme-on-primary);
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .app-bar__menu-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .app-bar__title {
+            flex: 1;
+            font-size: 20px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .app-bar__user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background-color: var(--mdc-theme-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            color: var(--mdc-theme-on-secondary);
+            cursor: pointer;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            background-color: var(--mdc-theme-surface);
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 200px;
+            display: none;
+            z-index: 100;
+        }
+
+        .user-menu.open {
+            display: block;
+            animation: fadeIn 0.2s;
+        }
+
+        .user-menu__item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--mdc-theme-on-surface);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .user-menu__item:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .user-menu__divider {
+            border-top: 1px solid rgba(0, 0, 0, 0.12);
+            margin: 8px 0;
+        }
+
+        /* Drawer */
+        .drawer {
+            width: var(--drawer-width);
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: var(--mdc-theme-surface);
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 5;
+            overflow-y: auto;
+        }
+
+        .drawer--closed {
+            transform: translateX(calc(-1 * var(--drawer-width)));
+        }
+
+        .drawer-header {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            background-color: var(--mdc-theme-primary);
+            color: var(--mdc-theme-on-primary);
+        }
+
+        .drawer-header__title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .drawer-content {
+            padding: 16px 0;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-list__item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: var(--mdc-theme-on-surface);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .nav-list__item:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .nav-list__item--active {
+            background-color: rgba(25, 118, 210, 0.08);
+            color: var(--mdc-theme-primary);
+        }
+
+        .nav-list__item-icon {
+            margin-right: 32px;
+        }
+
+        .nav-list__item--active .nav-list__item-icon {
+            color: var(--mdc-theme-primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 0;
+            margin-top: 64px;
+            padding: 24px;
+            transition: margin-left 0.3s ease;
+            width: 100%;
+            overflow-y: auto;
+        }
+
+        .drawer-open .main-content {
+            margin-left: var(--drawer-width);
+            width: calc(100% - var(--drawer-width));
+        }
+
+        /* Module Selector Card */
+        .selector-card {
+            background-color: var(--mdc-theme-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .selector-card__title {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0 0 16px;
+            color: var(--mdc-theme-primary);
+        }
+
+        .selector-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .selector-form__field {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .selector-form__actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Marks Card */
+        .marks-card {
+            background-color: var(--mdc-theme-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .marks-card__header {
+            background-color: rgba(25, 118, 210, 0.05);
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .marks-card__title {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0;
+            color: var(--mdc-theme-primary);
+        }
+
+        .marks-card__subtitle {
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.6);
+            margin: 4px 0 0;
+        }
+
+        .marks-card__content {
+            padding: 0;
+        }
+
+        /* Marks Table */
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .marks-table th {
+            text-align: left;
+            padding: 16px 24px;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            color: rgba(0, 0, 0, 0.6);
+            white-space: nowrap;
+        }
+
+        .marks-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .marks-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .marks-table tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .marks-table .mark-cell {
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Progress bar for marks */
+        .mark-progress {
+            height: 8px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .mark-progress__bar {
+            height: 100%;
+            background-color: var(--mdc-theme-primary);
+            border-radius: 4px;
+        }
+
+        .final-mark {
+            font-weight: 600;
+            color: var(--mdc-theme-primary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 24px;
+            text-align: center;
+        }
+
+        .empty-state__icon {
+            font-size: 48px;
+            color: rgba(0, 0, 0, 0.2);
+            margin-bottom: 16px;
+        }
+
+        .empty-state__title {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0 0 8px;
+        }
+
+        .empty-state__message {
+            color: rgba(0, 0, 0, 0.6);
+            margin: 0 0 24px;
+            max-width: 400px;
+        }
+
+        /* Summary Card */
+        .summary-card {
+            background-color: var(--mdc-theme-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card__title {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0 0 16px;
+            color: var(--mdc-theme-primary);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 24px;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-item__value {
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--mdc-theme-primary);
+            margin: 0 0 8px;
+        }
+
+        .summary-item__label {
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.6);
+            margin: 0;
+        }
+
+        /* Refresh Button */
+        .refresh-button {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--mdc-theme-primary);
+            color: var(--mdc-theme-on-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 3;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .refresh-button:hover {
+            background-color: #1565c0;
+            transform: scale(1.05);
+        }
+
+        .refresh-button:active {
+            transform: scale(0.95);
+        }
+
+        .refresh-button.refreshing {
+            animation: rotate 1s infinite linear;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Scrim (overlay) */
+        .scrim {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index: 4;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .drawer-open .scrim {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            color: rgba(0, 0, 0, 0.6);
+            display: none;
+            z-index: 2;
+        }
+
+        .status-offline {
+            display: block;
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .connection-status.status-online {
+            display: block;
+            background-color: #d4edda;
+            color: #155724;
+            animation: fadeOut 2s forwards;
+            animation-delay: 3s;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                display: none;
+            }
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: none;
+            justify-content: center;
+            padding: 48px 0;
+        }
+
+        .loading-spinner.visible {
+            display: flex;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(25, 118, 210, 0.1);
+            border-top: 4px solid var(--mdc-theme-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .selector-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .selector-form__field {
+                min-width: 100%;
+            }
+
+            .drawer-open .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .drawer-open .drawer {
+                transform: translateX(0);
+            }
+
+            .drawer-open .scrim {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .marks-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body class="drawer-open">
+    <!-- App Bar -->
+    <header class="app-bar">
+        <button class="app-bar__menu-button" id="menu-button" aria-label="Menu">
+            <i class="material-icons">menu</i>
+        </button>
+        <h1 class="app-bar__title">View Marks</h1>
+        <div class="app-bar__user">
+            <div class="user-avatar" id="user-avatar">MS</div>
+            <div class="user-menu" id="user-menu">
+                <a href="#" class="user-menu__item">
+                    <i class="material-icons">person</i>
+                    <span>Profile</span>
+                </a>
+                <div class="user-menu__divider"></div>
+                <a href="#" class="user-menu__item">
+                    <i class="material-icons">logout</i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Navigation Drawer -->
+        <nav class="drawer" id="drawer">
+            <div class="drawer-header">
+                <h2 class="drawer-header__title">KYTC Academic System</h2>
+            </div>
+            <div class="drawer-content">
+                <ul class="nav-list">
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">dashboard</i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">person</i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item nav-list__item--active">
+                            <i class="material-icons nav-list__item-icon">assessment</i>
+                            <span>View Marks</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">info</i>
+                            <span>About</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">logout</i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Scrim (overlay) for drawer on mobile -->
+        <div class="scrim" id="scrim"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Module Selector -->
+            <div class="selector-card">
+                <h2 class="selector-card__title">Select Module</h2>
+                <div class="selector-form">
+                    <div class="selector-form__field">
+                        <div class="mdc-select mdc-select--outlined" id="module-select">
+                            <div class="mdc-select__anchor">
+                                <span class="mdc-notched-outline">
+                                    <span class="mdc-notched-outline__leading"></span>
+                                    <span class="mdc-notched-outline__notch">
+                                        <span class="mdc-floating-label">Module</span>
+                                    </span>
+                                    <span class="mdc-notched-outline__trailing"></span>
+                                </span>
+                                <span class="mdc-select__selected-text-container">
+                                    <span class="mdc-select__selected-text"></span>
+                                </span>
+                                <span class="mdc-select__dropdown-icon">
+                                    <svg class="mdc-select__dropdown-icon-graphic" viewBox="7 10 10 5">
+                                        <polygon class="mdc-select__dropdown-icon-inactive" stroke="none" fill-rule="evenodd" points="7 10 12 15 17 10"></polygon>
+                                        <polygon class="mdc-select__dropdown-icon-active" stroke="none" fill-rule="evenodd" points="7 15 12 10 17 15"></polygon>
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth">
+                                <ul class="mdc-deprecated-list">
+                                    <li class="mdc-deprecated-list-item mdc-deprecated-list-item--selected" aria-selected="true" data-value="all" role="option">
+                                        <span class="mdc-deprecated-list-item__ripple"></span>
+                                        <span class="mdc-deprecated-list-item__text">All Modules</span>
+                                    </li>
+                                    <li class="mdc-deprecated-list-item" data-value="db101" role="option">
+                                        <span class="mdc-deprecated-list-item__ripple"></span>
+                                        <span class="mdc-deprecated-list-item__text">Database Systems</span>
+                                    </li>
+                                    <li class="mdc-deprecated-list-item" data-value="web101" role="option">
+                                        <span class="mdc-deprecated-list-item__ripple"></span>
+                                        <span class="mdc-deprecated-list-item__text">Web Development</span>
+                                    </li>
+                                    <li class="mdc-deprecated-list-item" data-value="se101" role="option">
+                                        <span class="mdc-deprecated-list-item__ripple"></span>
+                                        <span class="mdc-deprecated-list-item__text">Software Engineering</span>
+                                    </li>
+                                    <li class="mdc-deprecated-list-item" data-value="os101" role="option">
+                                        <span class="mdc-deprecated-list-item__ripple"></span>
+                                        <span class="mdc-deprecated-list-item__text">Operating Systems</span>
+                                    </li>
+                                    <li class="mdc-deprecated-list-item" data-value="net101" role="option">
+                                        <span class="mdc-deprecated-list-item__ripple"></span>
+                                        <span class="mdc-deprecated-list-item__text">Networking Essentials</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="selector-form__actions">
+                        <button class="mdc-button mdc-button--raised" id="view-marks-button">
+                            <span class="mdc-button__ripple"></span>
+                            <span class="mdc-button__label">View Marks</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div class="loading-spinner" id="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+
+            <!-- Marks Summary -->
+            <div class="summary-card" id="marks-summary">
+                <h2 class="summary-card__title">Overall Performance</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <p class="summary-item__value">85.2%</p>
+                        <p class="summary-item__label">Average Mark</p>
+                    </div>
+                    <div class="summary-item">
+                        <p class="summary-item__value">92%</p>
+                        <p class="summary-item__label">Highest Mark</p>
+                    </div>
+                    <div class="summary-item">
+                        <p class="summary-item__value">76%</p>
+                        <p class="summary-item__label">Lowest Mark</p>
+                    </div>
+                    <div class="summary-item">
+                        <p class="summary-item__value">5/5</p>
+                        <p class="summary-item__label">Completed Modules</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Systems Module -->
+            <div class="marks-card" id="module-db101">
+                <div class="marks-card__header">
+                    <h3 class="marks-card__title">Database Systems</h3>
+                    <p class="marks-card__subtitle">Dr. Ahmed Khalil • Level I • Semester 2</p>
+                </div>
+                <div class="marks-card__content">
+                    <table class="marks-table">
+                        <thead>
+                            <tr>
+                                <th>Assessment</th>
+                                <th>Type</th>
+                                <th>Max Mark</th>
+                                <th>Your Mark</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Quiz 1</td>
+                                <td>Quiz</td>
+                                <td class="mark-cell">10</td>
+                                <td class="mark-cell">8.5</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 85%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Assignment 1</td>
+                                <td>Assignment</td>
+                                <td class="mark-cell">10</td>
+                                <td class="mark-cell">9</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 90%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Midterm</td>
+                                <td>Exam</td>
+                                <td class="mark-cell">10</td>
+                                <td class="mark-cell">7.5</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 75%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Activities Average</td>
+                                <td></td>
+                                <td class="mark-cell">35</td>
+                                <td class="mark-cell">28</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 80%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Follow Up</td>
+                                <td>Participation</td>
+                                <td class="mark-cell">15</td>
+                                <td class="mark-cell">13</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 87%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Final Exam</td>
+                                <td>Exam</td>
+                                <td class="mark-cell">50</td>
+                                <td class="mark-cell">42</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 84%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total</strong></td>
+                                <td></td>
+                                <td class="mark-cell"><strong>100</strong></td>
+                                <td class="mark-cell final-mark"><strong>83</strong></td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 83%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Software Engineering Module -->
+            <div class="marks-card" id="module-se101">
+                <div class="marks-card__header">
+                    <h3 class="marks-card__title">Software Engineering</h3>
+                    <p class="marks-card__subtitle">Dr. Omar Khaled • Level I • Semester 2</p>
+                </div>
+                <div class="marks-card__content">
+                    <table class="marks-table">
+                        <thead>
+                            <tr>
+                                <th>Assessment</th>
+                                <th>Type</th>
+                                <th>Max Mark</th>
+                                <th>Your Mark</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Quiz 1</td>
+                                <td>Quiz</td>
+                                <td class="mark-cell">10</td>
+                                <td class="mark-cell">8</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 80%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Assignment 1</td>
+                                <td>Assignment</td>
+                                <td class="mark-cell">10</td>
+                                <td class="mark-cell">7.5</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 75%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Activities Average</td>
+                                <td></td>
+                                <td class="mark-cell">35</td>
+                                <td class="mark-cell">27</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 77%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Follow Up</td>
+                                <td>Participation</td>
+                                <td class="mark-cell">15</td>
+                                <td class="mark-cell">11</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 73%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Final Exam</td>
+                                <td>Exam</td>
+                                <td class="mark-cell">50</td>
+                                <td class="mark-cell">38</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 76%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total</strong></td>
+                                <td></td>
+                                <td class="mark-cell"><strong>100</strong></td>
+                                <td class="mark-cell final-mark"><strong>76</strong></td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 76%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State (initially hidden) -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <i class="material-icons empty-state__icon">assessment</i>
+                <h3 class="empty-state__title">No Marks Available</h3>
+                <p class="empty-state__message">There are no published marks for the selected module yet. Please check back later or select another module.</p>
+                <button class="mdc-button mdc-button--outlined">
+                    <span class="mdc-button__ripple"></span>
+                    <span class="mdc-button__label">Go to Dashboard</span>
+                </button>
+            </div>
+
+            <!-- Web Development Module -->
+            <div class="marks-card" id="module-web101">
+                <div class="marks-card__header">
+                    <h3 class="marks-card__title">Web Development</h3>
+                    <p class="marks-card__subtitle">Dr. Fatima Nasser • Level I • Semester 2</p>
+                </div>
+                <div class="marks-card__content">
+                    <table class="marks-table">
+                        <thead>
+                            <tr>
+                                <th>Assessment</th>
+                                <th>Type</th>
+                                <th>Max Mark</th>
+                                <th>Your Mark</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Quiz 1</td>
+                                <td>Quiz</td>
+                                <td class="mark-cell">10</td>
+                                <td class="mark-cell">7</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 70%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Assignment 1</td>
+                                <td>Assignment</td>
+                                <td class="mark-cell">10</td>
+                                <td class="mark-cell">8</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 80%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Project 1</td>
+                                <td>Project</td>
+                                <td class="mark-cell">10</td>
+                                <td class="mark-cell">9.5</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 95%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Activities Average</td>
+                                <td></td>
+                                <td class="mark-cell">35</td>
+                                <td class="mark-cell">29</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 83%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Follow Up</td>
+                                <td>Participation</td>
+                                <td class="mark-cell">15</td>
+                                <td class="mark-cell">14</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 93%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Final Exam</td>
+                                <td>Exam</td>
+                                <td class="mark-cell">50</td>
+                                <td class="mark-cell">46</td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 92%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total</strong></td>
+                                <td></td>
+                                <td class="mark-cell"><strong>100</strong></td>
+                                <td class="mark-cell final-mark"><strong>89</strong></td>
+                                <td>
+                                    <div class="mark-progress">
+                                        <div class="mark-progress__bar" style="width: 89%"></div>
+                                    </div>
+                                </td>
+                            </tr>
