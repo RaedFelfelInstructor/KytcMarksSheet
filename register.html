@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYTC Academic System - Student Registration</title>
+    <!-- Material Design Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/4.0.0/font/MaterialIcons.min.css">
+    <!-- Material Design Components Web -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --mdc-theme-primary: #1976d2;
+            --mdc-theme-secondary: #03a9f4;
+            --mdc-theme-background: #f5f5f5;
+            --mdc-theme-surface: #ffffff;
+            --mdc-theme-error: #b00020;
+            --mdc-theme-on-primary: #ffffff;
+            --mdc-theme-on-secondary: #000000;
+            --mdc-theme-on-surface: #000000;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Roboto, sans-serif;
+            background-color: var(--mdc-theme-background);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: var(--mdc-theme-primary);
+            color: var(--mdc-theme-on-primary);
+            padding: 12px 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header__title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .register-card {
+            background-color: var(--mdc-theme-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 24px;
+        }
+
+        .register-card__title {
+            margin: 0 0 24px;
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--mdc-theme-primary);
+            text-align: center;
+        }
+
+        .register-card__logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .register-card__logo img {
+            max-width: 120px;
+            height: auto;
+        }
+
+        .register-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .mdc-text-field {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+
+        .register-form__actions {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .register-form__submit {
+            width: 100%;
+        }
+
+        .register-form__links {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .register-form__link {
+            color: var(--mdc-theme-primary);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .register-form__link:hover {
+            opacity: 0.8;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .connection-status {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            color: rgba(0, 0, 0, 0.6);
+            display: none;
+        }
+
+        .status-offline {
+            display: block;
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .connection-status.status-online {
+            display: block;
+            background-color: #d4edda;
+            color: #155724;
+            animation: fadeOut 2s forwards;
+            animation-delay: 3s;
+        }
+
+        .mdc-select {
+            width: 100%;
+        }
+
+        /* Help text for password requirements */
+        .help-text {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+            margin-top: 4px;
+        }
+
+        .password-strength {
+            height: 4px;
+            background-color: #e0e0e0;
+            margin-top: 8px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .password-strength-indicator {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .strength-weak {
+            background-color: #f44336;
+            width: 33%;
+        }
+
+        .strength-medium {
+            background-color: #ff9800;
+            width: 66%;
+        }
+
+        .strength-strong {
+            background-color: #4caf50;
+            width: 100%;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1 class="header__title">KYTC Academic System</h1>
+    </header>
+
+    <main class="main-content">
+        <div class="register-card">
+            <div class="register-card__logo">
+                <!-- Placeholder image for KYTC logo -->
+                <img src="/api/placeholder/120/120" alt="KYTC Logo">
+            </div>
+            <h2 class="register-card__title">Student Registration</h2>
+            <form id="registerForm" class="register-form">
+                <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon" id="student-id-field">
+                    <i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading">badge</i>
+                    <input class="mdc-text-field__input" type="text" id="student-id" required>
+                    <div class="mdc-notched-outline">
+                        <div class="mdc-notched-outline__leading"></div>
+                        <div class="mdc-notched-outline__notch">
+                            <label for="student-id" class="mdc-floating-label">Student ID</label>
+                        </div>
+                        <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                </div>
+
+                <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon" id="email-field">
+                    <i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading">email</i>
+                    <input class="mdc-text-field__input" type="email" id="email" required>
+                    <div class="mdc-notched-outline">
+                        <div class="mdc-notched-outline__leading"></div>
+                        <div class="mdc-notched-outline__notch">
+                            <label for="email" class="mdc-floating-label">Email</label>
+                        </div>
+                        <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon" id="password-field">
+                        <i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading">lock</i>
+                        <input class="mdc-text-field__input" type="password" id="password" required>
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="password" class="mdc-floating-label">Password</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                    </div>
+
+                    <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon" id="confirm-password-field">
+                        <i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading">lock</i>
+                        <input class="mdc-text-field__input" type="password" id="confirm-password" required>
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="confirm-password" class="mdc-floating-label">Confirm Password</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-text">Password must be at least 8 characters long and include numbers and special characters.</div>
+                <div class="password-strength">
+                    <div class="password-strength-indicator" id="password-strength-indicator"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="mdc-select mdc-select--outlined" id="program-select">
+                        <div class="mdc-select__anchor">
+                            <span class="mdc-notched-outline">
+                                <span class="mdc-notched-outline__leading"></span>
+                                <span class="mdc-notched-outline__notch">
+                                    <span class="mdc-floating-label">Program</span>
+                                </span>
+                                <span class="mdc-notched-outline__trailing"></span>
+                            </span>
+                            <span class="mdc-select__selected-text-container">
+                                <span class="mdc-select__selected-text"></span>
+                            </span>
+                            <span class="mdc-select__dropdown-icon">
+                                <svg class="mdc-select__dropdown-icon-graphic" viewBox="7 10 10 5">
+                                    <polygon class="mdc-select__dropdown-icon-inactive" stroke="none" fill-rule="evenodd" points="7 10 12 15 17 10"></polygon>
+                                    <polygon class="mdc-select__dropdown-icon-active" stroke="none" fill-rule="evenodd" points="7 15 12 10 17 15"></polygon>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth">
+                            <ul class="mdc-deprecated-list">
+                                <li class="mdc-deprecated-list-item mdc-deprecated-list-item--selected" aria-selected="true" data-value="EN" role="option">
+                                    <span class="mdc-deprecated-list-item__ripple"></span>
+                                    <span class="mdc-deprecated-list-item__text">Engineering (EN)</span>
+                                </li>
+                                <li class="mdc-deprecated-list-item" data-value="BOM" role="option">
+                                    <span class="mdc-deprecated-list-item__ripple"></span>
+                                    <span class="mdc-deprecated-list-item__text">Business & Office Management (BOM)</span>
+                                </li>
+                                <li class="mdc-deprecated-list-item" data-value="HAA" role="option">
+                                    <span class="mdc-deprecated-list-item__ripple"></span>
+                                    <span class="mdc-deprecated-list-item__text">Hospitality & Accommodation (HAA)</span>
+                                </li>
+                                <li class="mdc-deprecated-list-item" data-value="EB" role="option">
+                                    <span class="mdc-deprecated-list-item__ripple"></span>
+                                    <span class="mdc-deprecated-list-item__text">E-Business (EB)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mdc-select mdc-select--outlined" id="level-select">
+                        <div class="mdc-select__anchor">
+                            <span class="mdc-notched-outline">
+                                <span class="mdc-notched-outline__leading"></span>
+                                <span class="mdc-notched-outline__notch">
+                                    <span class="mdc-floating-label">Level</span>
+                                </span>
+                                <span class="mdc-notched-outline__trailing"></span>
+                            </span>
+                            <span class="mdc-select__selected-text-container">
+                                <span class="mdc-select__selected-text"></span>
+                            </span>
+                            <span class="mdc-select__dropdown-icon">
+                                <svg class="mdc-select__dropdown-icon-graphic" viewBox="7 10 10 5">
+                                    <polygon class="mdc-select__dropdown-icon-inactive" stroke="none" fill-rule="evenodd" points="7 10 12 15 17 10"></polygon>
+                                    <polygon class="mdc-select__dropdown-icon-active" stroke="none" fill-rule="evenodd" points="7 15 12 10 17 15"></polygon>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth">
+                            <ul class="mdc-deprecated-list">
+                                <li class="mdc-deprecated-list-item mdc-deprecated-list-item--selected" aria-selected="true" data-value="I" role="option">
+                                    <span class="mdc-deprecated-list-item__ripple"></span>
+                                    <span class="mdc-deprecated-list-item__text">Level I</span>
+                                </li>
+                                <li class="mdc-deprecated-list-item" data-value="II" role="option">
+                                    <span class="mdc-deprecated-list-item__ripple"></span>
+                                    <span class="mdc-deprecated-list-item__text">Level II</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="register-form__actions">
+                    <button class="mdc-button mdc-button--raised register-form__submit" id="register-button">
+                        <span class="mdc-button__ripple"></span>
+                        <span class="mdc-button__label">Register</span>
+                    </button>
+                </div>
+
+                <div class="register-form__links">
+                    <a href="#" class="register-form__link" id="back-to-login">Already have an account? Login here</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Khan Younis Training College. All rights reserved.</p>
+    </footer>
+
+    <div id="connection-status" class="connection-status">
+        Checking connection...
+    </div>
+
+    <!-- Material Components Web JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Material Design Components
+            const studentIdField = new mdc.textField.MDCTextField(document.getElementById('student-id-field'));
+            const emailField = new mdc.textField.MDCTextField(document.getElementById('email-field'));
+            const passwordField = new mdc.textField.MDCTextField(document.getElementById('password-field'));
+            const confirmPasswordField = new mdc.textField.MDCTextField(document.getElementById('confirm-password-field'));
+            const programSelect = new mdc.select.MDCSelect(document.getElementById('program-select'));
+            const levelSelect = new mdc.select.MDCSelect(document.getElementById('level-select'));
+            const registerButton = new mdc.ripple.MDCRipple(document.getElementById('register-button'));
+            
+            // Password strength meter
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            const strengthIndicator = document.getElementById('password-strength-indicator');
+            
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                
+                // Simple password strength check
+                let strength = 0;
+                
+                if (password.length >= 8) {
+                    strength += 1;
+                }
+                
+                if (password.match(/[0-9]+/)) {
+                    strength += 1;
+                }
+                
+                if (password.match(/[!@#$%^&*]+/)) {
+                    strength += 1;
+                }
+                
+                // Update strength indicator
+                strengthIndicator.className = 'password-strength-indicator';
+                
+                if (strength === 1) {
+                    strengthIndicator.classList.add('strength-weak');
+                } else if (strength === 2) {
+                    strengthIndicator.classList.add('strength-medium');
+                } else if (strength === 3) {
+                    strengthIndicator.classList.add('strength-strong');
+                }
+            });
+            
+            // Registration form submission
+            const registerForm = document.getElementById('registerForm');
+            
+            registerForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Basic validation
+                const studentId = studentIdField.value.trim();
+                const email = emailField.value.trim();
+                const password = passwordField.value.trim();
+                const confirmPassword = confirmPasswordField.value.trim();
+                const program = programSelect.value;
+                const level = levelSelect.value;
+                
+                if (!studentId || !email || !password || !confirmPassword || !program || !level) {
+                    alert('Please fill in all fields.');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match.');
+                    return;
+                }
+                
+                // Password strength validation
+                if (password.length < 8) {
+                    alert('Password must be at least 8 characters long.');
+                    return;
+                }
+                
+                if (!password.match(/[0-9]+/)) {
+                    alert('Password must include at least one number.');
+                    return;
+                }
+                
+                if (!password.match(/[!@#$%^&*]+/)) {
+                    alert('Password must include at least one special character.');
+                    return;
+                }
+                
+                // Show loading state
+                registerButton.disabled = true;
+                document.getElementById('register-button').querySelector('.mdc-button__label').textContent = 'Registering...';
+                
+                // Simulate registration process (replace with actual Firebase Auth in production)
+                setTimeout(function() {
+                    console.log('Registration attempt:', { 
+                        studentId, 
+                        email, 
+                        program, 
+                        level 
+                    });
+                    
+                    // In production, this would use Firebase Auth and create the user profile
+                    
+                    // Simulate successful registration and redirect to login
+                    alert('Registration successful! Please login with your credentials.');
+                    window.location.href = '/login';
+                    
+                    // Reset form (in case registration fails)
+                    registerButton.disabled = false;
+                    document.getElementById('register-button').querySelector('.mdc-button__label').textContent = 'Register';
+                }, 1500);
+            });
+            
+            // Navigation links
+            document.getElementById('back-to-login').addEventListener('click', function(event) {
+                event.preventDefault();
+                window.location.href = '/login';
+            });
+            
+            // Setup network status monitoring
+            function updateConnectionStatus() {
+                const statusIndicator = document.getElementById('connection-status');
+                const isOnline = navigator.onLine;
+                
+                if (isOnline) {
+                    statusIndicator.textContent = 'Online';
+                    statusIndicator.className = 'connection-status status-online';
+                } else {
+                    statusIndicator.textContent = 'Offline - Please check your internet connection';
+                    statusIndicator.className = 'connection-status status-offline';
+                }
+            }
+            
+            // Add event listeners for online/offline events
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+            
+            // Initialize connection status
+            updateConnectionStatus();
+        });
+    </script>
+</body>
+</html>
