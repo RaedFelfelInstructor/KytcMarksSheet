@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYTC Academic System - Student Profile</title>
+    <!-- Material Design Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/4.0.0/font/MaterialIcons.min.css">
+    <!-- Material Design Components Web -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --mdc-theme-primary: #1976d2;
+            --mdc-theme-secondary: #03a9f4;
+            --mdc-theme-background: #f5f5f5;
+            --mdc-theme-surface: #ffffff;
+            --mdc-theme-error: #b00020;
+            --mdc-theme-on-primary: #ffffff;
+            --mdc-theme-on-secondary: #000000;
+            --mdc-theme-on-surface: #000000;
+            --drawer-width: 256px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Roboto, sans-serif;
+            background-color: var(--mdc-theme-background);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* App Bar */
+        .app-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background-color: var(--mdc-theme-primary);
+            color: var(--mdc-theme-on-primary);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .app-bar__menu-button {
+            margin-right: 16px;
+            color: var(--mdc-theme-on-primary);
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .app-bar__menu-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .app-bar__title {
+            flex: 1;
+            font-size: 20px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .app-bar__user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background-color: var(--mdc-theme-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            color: var(--mdc-theme-on-secondary);
+            cursor: pointer;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            background-color: var(--mdc-theme-surface);
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 200px;
+            display: none;
+            z-index: 100;
+        }
+
+        .user-menu.open {
+            display: block;
+            animation: fadeIn 0.2s;
+        }
+
+        .user-menu__item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--mdc-theme-on-surface);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .user-menu__item:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .user-menu__divider {
+            border-top: 1px solid rgba(0, 0, 0, 0.12);
+            margin: 8px 0;
+        }
+
+        /* Drawer */
+        .drawer {
+            width: var(--drawer-width);
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: var(--mdc-theme-surface);
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 5;
+            overflow-y: auto;
+        }
+
+        .drawer--closed {
+            transform: translateX(calc(-1 * var(--drawer-width)));
+        }
+
+        .drawer-header {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            background-color: var(--mdc-theme-primary);
+            color: var(--mdc-theme-on-primary);
+        }
+
+        .drawer-header__title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .drawer-content {
+            padding: 16px 0;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-list__item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: var(--mdc-theme-on-surface);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .nav-list__item:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .nav-list__item--active {
+            background-color: rgba(25, 118, 210, 0.08);
+            color: var(--mdc-theme-primary);
+        }
+
+        .nav-list__item-icon {
+            margin-right: 32px;
+        }
+
+        .nav-list__item--active .nav-list__item-icon {
+            color: var(--mdc-theme-primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 0;
+            margin-top: 64px;
+            padding: 24px;
+            transition: margin-left 0.3s ease;
+            width: 100%;
+            overflow-y: auto;
+        }
+
+        .drawer-open .main-content {
+            margin-left: var(--drawer-width);
+            width: calc(100% - var(--drawer-width));
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background-color: var(--mdc-theme-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .profile-header__avatar {
+            width: 80px;
+            height: 80px;
+            background-color: var(--mdc-theme-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 500;
+            color: var(--mdc-theme-on-primary);
+            margin-right: 24px;
+        }
+
+        .profile-header__info {
+            flex: 1;
+        }
+
+        .profile-header__name {
+            font-size: 24px;
+            font-weight: 500;
+            margin: 0 0 8px;
+        }
+
+        .profile-header__student-id {
+            font-size: 16px;
+            color: rgba(0, 0, 0, 0.6);
+            margin: 0;
+        }
+
+        .profile-header__edit-button {
+            margin-left: 16px;
+        }
+
+        .profile-section {
+            margin-bottom: 32px;
+        }
+
+        .profile-section__title {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0 0 16px;
+            color: var(--mdc-theme-primary);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .profile-field-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 16px;
+        }
+
+        .profile-field {
+            margin-bottom: 16px;
+        }
+
+        .profile-field__label {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .profile-field__value {
+            font-size: 16px;
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        /* Edit Mode Styles */
+        .edit-mode .profile-field__value {
+            display: none;
+        }
+
+        .profile-field__input {
+            display: none;
+        }
+
+        .edit-mode .profile-field__input {
+            display: block;
+        }
+
+        .profile-field__input .mdc-text-field {
+            width: 100%;
+        }
+
+        .profile-edit-actions {
+            display: none;
+        }
+
+        .edit-mode .profile-edit-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .edit-mode .profile-actions {
+            display: none;
+        }
+
+        /* Academic Info Card */
+        .academic-info-card {
+            background-color: var(--mdc-theme-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Scrim (overlay) */
+        .scrim {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index: 4;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .drawer-open .scrim {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            color: rgba(0, 0, 0, 0.6);
+            display: none;
+            z-index: 2;
+        }
+
+        .status-offline {
+            display: block;
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .connection-status.status-online {
+            display: block;
+            background-color: #d4edda;
+            color: #155724;
+            animation: fadeOut 2s forwards;
+            animation-delay: 3s;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                display: none;
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .profile-field-group {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .drawer-open .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .drawer-open .drawer {
+                transform: translateX(0);
+            }
+
+            .drawer-open .scrim {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
+    </style>
+</head>
+<body class="drawer-open">
+    <!-- App Bar -->
+    <header class="app-bar">
+        <button class="app-bar__menu-button" id="menu-button" aria-label="Menu">
+            <i class="material-icons">menu</i>
+        </button>
+        <h1 class="app-bar__title">Student Profile</h1>
+        <div class="app-bar__user">
+            <div class="user-avatar" id="user-avatar">MS</div>
+            <div class="user-menu" id="user-menu">
+                <a href="#" class="user-menu__item">
+                    <i class="material-icons">person</i>
+                    <span>Profile</span>
+                </a>
+                <div class="user-menu__divider"></div>
+                <a href="#" class="user-menu__item">
+                    <i class="material-icons">logout</i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Navigation Drawer -->
+        <nav class="drawer" id="drawer">
+            <div class="drawer-header">
+                <h2 class="drawer-header__title">KYTC Academic System</h2>
+            </div>
+            <div class="drawer-content">
+                <ul class="nav-list">
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">dashboard</i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item nav-list__item--active">
+                            <i class="material-icons nav-list__item-icon">person</i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">assessment</i>
+                            <span>View Marks</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">info</i>
+                            <span>About</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">logout</i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Scrim (overlay) for drawer on mobile -->
+        <div class="scrim" id="scrim"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="profile-card" id="profile-form">
+                <div class="profile-header">
+                    <div class="profile-header__avatar">MS</div>
+                    <div class="profile-header__info">
+                        <h2 class="profile-header__name">Mohammed Salem</h2>
+                        <p class="profile-header__student-id">ID: S202210056</p>
+                    </div>
+                    <button class="mdc-button mdc-button--outlined profile-header__edit-button" id="edit-profile-button">
+                        <span class="mdc-button__ripple"></span>
+                        <i class="material-icons mdc-button__icon">edit</i>
+                        <span class="mdc-button__label">Edit</span>
+                    </button>
+                </div>
+
+                <div class="profile-section">
+                    <h3 class="profile-section__title">Personal Information</h3>
+                    <div class="profile-field-group">
+                        <div class="profile-field">
+                            <label class="profile-field__label">Arabic Name</label>
+                            <div class="profile-field__value">محمد سالم</div>
+                            <div class="profile-field__input">
+                                <div class="mdc-text-field mdc-text-field--outlined" id="arabic-name-field">
+                                    <input class="mdc-text-field__input" type="text" id="arabic-name" value="محمد سالم">
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="arabic-name" class="mdc-floating-label">Arabic Name</label>
+                                        </div>
+                                        <div class="mdc-notched-outline__trailing"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-field">
+                            <label class="profile-field__label">English Name</label>
+                            <div class="profile-field__value">Mohammed Salem</div>
+                            <div class="profile-field__input">
+                                <div class="mdc-text-field mdc-text-field--outlined" id="english-name-field">
+                                    <input class="mdc-text-field__input" type="text" id="english-name" value="Mohammed Salem">
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="english-name" class="mdc-floating-label">English Name</label>
+                                        </div>
+                                        <div class="mdc-notched-outline__trailing"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h3 class="profile-section__title">Contact Information</h3>
+                    <div class="profile-field-group">
+                        <div class="profile-field">
+                            <label class="profile-field__label">Email</label>
+                            <div class="profile-field__value">mohammed.salem@kytc.edu</div>
+                            <div class="profile-field__input">
+                                <div class="mdc-text-field mdc-text-field--outlined" id="email-field">
+                                    <input class="mdc-text-field__input" type="email" id="email" value="mohammed.salem@kytc.edu">
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="email" class="mdc-floating-label">Email</label>
+                                        </div>
+                                        <div class="mdc-notched-outline__trailing"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-field">
+                            <label class="profile-field__label">Mobile Number</label>
+                            <div class="profile-field__value">+970 59 123 4567</div>
+                            <div class="profile-field__input">
+                                <div class="mdc-text-field mdc-text-field--outlined" id="mobile-field">
+                                    <input class="mdc-text-field__input" type="tel" id="mobile" value="+970 59 123 4567">
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="mobile" class="mdc-floating-label">Mobile Number</label>
+                                        </div>
+                                        <div class="mdc-notched-outline__trailing"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-field">
+                            <label class="profile-field__label">WhatsApp</label>
+                            <div class="profile-field__value">+970 59 123 4567</div>
+                            <div class="profile-field__input">
+                                <div class="mdc-text-field mdc-text-field--outlined" id="whatsapp-field">
+                                    <input class="mdc-text-field__input" type="tel" id="whatsapp" value="+970 59 123 4567">
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="whatsapp" class="mdc-floating-label">WhatsApp</label>
+                                        </div>
+                                        <div class="mdc-notched-outline__trailing"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-field">
+                            <label class="profile-field__label">Telegram Name</label>
+                            <div class="profile-field__value">@mohsalem</div>
+                            <div class="profile-field__input">
+                                <div class="mdc-text-field mdc-text-field--outlined" id="telegram-field">
+                                    <input class="mdc-text-field__input" type="text" id="telegram" value="@mohsalem">
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="telegram" class="mdc-floating-label">Telegram Name</label>
+                                        </div>
+                                        <div class="mdc-notched-outline__trailing"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h3 class="profile-section__title">Academic Information</h3>
+                    <div class="profile-field-group">
+                        <div class="profile-field">
+                            <label class="profile-field__label">Program</label>
+                            <div class="profile-field__value">Engineering (EN)</div>
+                            <div class="profile-field__input">
+                                <!-- In a real application, this would be a select field not editable by students -->
+                                <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--disabled" id="program-field">
+                                    <input class="mdc-text-field__input" type="text" id="program" value="Engineering (EN)" disabled>
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="program" class="mdc-floating-label">Program</label>
+                                        </div>
+                                        <div class="mdc-notched-outline__trailing"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-field">
+                            <label class="profile-field__label">Level</label>
+                            <div class="profile-field__value">Level I</div>
+                            <div class="profile-field__input">
+                                <!-- In a real application, this would be a select field not editable by students -->
+                                <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--disabled" id="level-field">
+                                    <input class="mdc-text-field__input" type="text" id="level" value="Level I" disabled>
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="level" class="mdc-floating-label">Level</label>
+                                        </div>
+                                        <div class="mdc-notched-outline__trailing"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-field">
+                            <label class="profile-field__label">Current Semester</label>
+                            <div class="profile-field__value">Semester 2</div>
+                            <div class="profile-field__input">
+                                <!-- In a real application, this would be a select field not editable by students -->
+                                <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--disabled" id="semester-field">
+                                    <input class="mdc-text-field__input" type="text" id="semester" value="Semester 2" disabled>
+                                    <div class="mdc-notched-outline">
+                                        <div class="mdc-notched-outline__leading"></div>
+                                        <div class="mdc-notched-outline__notch">
+                                            <label for="semester" class="mdc-floating-label">Current Semester</label>
+                                        </div>
+                                        <div class="mdc-notched-outline__trailing"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button class="mdc-button mdc-button--raised" id="view-marks-button">
+                        <span class="mdc-button__ripple"></span>
+                        <i class="material-icons mdc-button__icon">assessment</i>
+                        <span class="mdc-button__label">View Marks</span>
+                    </button>
+                </div>
+
+                <div class="profile-edit-actions">
+                    <button class="mdc-button" id="cancel-edit-button">
+                        <span class="mdc-button__ripple"></span>
+                        <span class="mdc-button__label">Cancel</span>
+                    </button>
+                    <button class="mdc-button mdc-button--raised" id="save-profile-button">
+                        <span class="mdc-button__ripple"></span>
+                        <i class="material-icons mdc-button__icon">save</i>
+                        <span class="mdc-button__label">Save Changes</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Connection Status Indicator -->
+    <div id="connection-status" class="connection-status">
+        Checking connection...
+    </div>
+
+    <!-- Material Components Web JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Material Components
+            const buttons = document.querySelectorAll('.mdc-button');
+            buttons.forEach(button => new mdc.ripple.MDCRipple(button));
+            
+            // Initialize text fields
+            const textFields = document.querySelectorAll('.mdc-text-field:not(.mdc-text-field--disabled)');
+            textFields.forEach(textField => new mdc.textField.MDCTextField(textField));
+
+            // Toggle drawer
+            const menuButton = document.getElementById('menu-button');
+            const drawer = document.getElementById('drawer');
+            const scrim = document.getElementById('scrim');
+            const body = document.body;
+
+            menuButton.addEventListener('click', function() {
+                body.classList.toggle('drawer-open');
+            });
+
+            scrim.addEventListener('click', function() {
+                body.classList.remove('drawer-open');
+            });
+
+            // User menu toggle
+            const userAvatar = document.getElementById('user-avatar');
+            const userMenu = document.getElementById('user-menu');
+
+            userAvatar.addEventListener('click', function(event) {
+                userMenu.classList.toggle('open');
+                event.stopPropagation();
+            });
+
+            document.addEventListener('click', function() {
+                userMenu.classList.remove('open');
+            });
+
+            userMenu.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+
+            // Profile Edit Mode
+            const editProfileButton = document.getElementById('edit-profile-button');
+            const cancelEditButton = document.getElementById('cancel-edit-button');
+            const saveProfileButton = document.getElementById('save-profile-button');
+            const profileForm = document.getElementById('profile-form');
+
+            editProfileButton.addEventListener('click', function() {
+                profileForm.classList.add('edit-mode');
+            });
+
+            cancelEditButton.addEventListener('click', function() {
+                profileForm.classList.remove('edit-mode');
+            });
+
+            saveProfileButton.addEventListener('click', function() {
+                // In a real application, this would save the form data to Firebase
+                
+                // Show saving indicator
+                saveProfileButton.disabled = true;
+                saveProfileButton.querySelector('.mdc-button__label').textContent = 'Saving...';
+
+                // Simulate saving delay
+                setTimeout(function() {
+                    // Update displayed values with new input values
+                    document.querySelectorAll('.profile-field').forEach(field => {
+                        const input = field.querySelector('.mdc-text-field__input');
+                        const value = field.querySelector('.profile-field__value');
+                        
+                        if (input && value && !input.disabled) {
+                            value.textContent = input.value;
+                        }
+                    });
+                    
+                    // Exit edit mode
+                    profileForm.classList.remove('edit-mode');
+                    
+                    // Reset button
+                    saveProfileButton.disabled = false;
+                    saveProfileButton.querySelector('.mdc-button__label').textContent = 'Save Changes';
+                    
+                    // Show success message
+                    const statusIndicator = document.getElementById('connection-status');
+                    statusIndicator.textContent = 'Profile updated successfully';
+                    statusIndicator.className = 'connection-status status-online';
+                    
+                    // Hide after some time
+                    setTimeout(() => {
+                        statusIndicator.className = 'connection-status';
+                    }, 3000);
+                }, 1500);
+            });
+
+            // View Marks button
+            document.getElementById('view-marks-button').addEventListener('click', function() {
+                window.location.href = '/student/marks';
+            });
+
+            // Navigation links
+            document.querySelectorAll('.nav-list__item').forEach(item => {
+                item.addEventListener('click', function(event) {
+                    const page = this.querySelector('span').textContent.toLowerCase();
+                    
+                    if (page === 'dashboard') {
+                        window.location.href = '/student/dashboard';
+                    } else if (page === 'profile') {
+                        // Already on profile page
+                    } else if (page === 'view marks') {
+                        window.location.href = '/student/marks';
+                    } else if (page === 'logout') {
+                        // In a real application, this would log the user out
+                        window.location.href = '/login';
+                    }
+                });
+            });
+
+            // Setup network status monitoring
+            function updateConnectionStatus() {
+                const statusIndicator = document.getElementById('connection-status');
+                const isOnline = navigator.onLine;
+                
+                if (isOnline) {
+                    statusIndicator.textContent = 'Online';
+                    statusIndicator.className = 'connection-status status-online';
+                    
+                    // Hide after some time
+                    setTimeout(() => {
+                        statusIndicator.className = 'connection-status';
+                    }, 3000);
+                } else {
+                    statusIndicator.textContent = 'Offline - Changes will sync when connection is restored';
+                    statusIndicator.className = 'connection-status status-offline';
+                }
+            }
+            
+            // Add event listeners for online/offline events
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+            
+            // Initialize connection status
+            updateConnectionStatus();
+        });
+    </script>
+</body>
+</html>
