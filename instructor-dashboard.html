@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYTC Academic System - Instructor Dashboard</title>
+    <!-- Material Design Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/4.0.0/font/MaterialIcons.min.css">
+    <!-- Material Design Components Web -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --mdc-theme-primary: #1976d2;
+            --mdc-theme-secondary: #03a9f4;
+            --mdc-theme-background: #f5f5f5;
+            --mdc-theme-surface: #ffffff;
+            --mdc-theme-error: #b00020;
+            --mdc-theme-on-primary: #ffffff;
+            --mdc-theme-on-secondary: #000000;
+            --mdc-theme-on-surface: #000000;
+            --drawer-width: 256px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Roboto, sans-serif;
+            background-color: var(--mdc-theme-background);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* App Bar */
+        .app-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background-color: var(--mdc-theme-primary);
+            color: var(--mdc-theme-on-primary);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .app-bar__menu-button {
+            margin-right: 16px;
+            color: var(--mdc-theme-on-primary);
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .app-bar__menu-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .app-bar__title {
+            flex: 1;
+            font-size: 20px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .app-bar__user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background-color: var(--mdc-theme-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            color: var(--mdc-theme-on-secondary);
+            cursor: pointer;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            background-color: var(--mdc-theme-surface);
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 200px;
+            display: none;
+            z-index: 100;
+        }
+
+        .user-menu.open {
+            display: block;
+            animation: fadeIn 0.2s;
+        }
+
+        .user-menu__item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--mdc-theme-on-surface);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .user-menu__item:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .user-menu__divider {
+            border-top: 1px solid rgba(0, 0, 0, 0.12);
+            margin: 8px 0;
+        }
+
+        /* Drawer */
+        .drawer {
+            width: var(--drawer-width);
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: var(--mdc-theme-surface);
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 5;
+            overflow-y: auto;
+        }
+
+        .drawer--closed {
+            transform: translateX(calc(-1 * var(--drawer-width)));
+        }
+
+        .drawer-header {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            background-color: var(--mdc-theme-primary);
+            color: var(--mdc-theme-on-primary);
+        }
+
+        .drawer-header__title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .drawer-content {
+            padding: 16px 0;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-list__item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: var(--mdc-theme-on-surface);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .nav-list__item:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .nav-list__item--active {
+            background-color: rgba(25, 118, 210, 0.08);
+            color: var(--mdc-theme-primary);
+        }
+
+        .nav-list__item-icon {
+            margin-right: 32px;
+        }
+
+        .nav-list__item--active .nav-list__item-icon {
+            color: var(--mdc-theme-primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 0;
+            margin-top: 64px;
+            padding: 24px;
+            transition: margin-left 0.3s ease;
+            width: 100%;
+            overflow-y: auto;
+        }
+
+        .drawer-open .main-content {
+            margin-left: var(--drawer-width);
+            width: calc(100% - var(--drawer-width));
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            background-color: var(--mdc-theme-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .welcome-card__content {
+            flex: 1;
+        }
+
+        .welcome-card__title {
+            font-size: 24px;
+            font-weight: 500;
+            margin: 0 0 8px;
+            color: var(--mdc-theme-primary);
+        }
+
+        .welcome-card__subtitle {
+            font-size: 16px;
+            color: rgba(0, 0, 0, 0.6);
+            margin: 0;
+        }
+
+        .welcome-card__actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .dashboard-card {
+            background-color: var(--mdc-theme-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-card__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .dashboard-card__title {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0;
+            color: var(--mdc-theme-primary);
+        }
+
+        .dashboard-card__icon {
+            color: var(--mdc-theme-primary);
+            background-color: rgba(25, 118, 210, 0.08);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dashboard-card__content {
+            flex: 1;
+        }
+
+        .dashboard-card__footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        /* Module List */
+        .module-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .module-item {
+            background-color: var(--mdc-theme-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .module-item__header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background-color: rgba(25, 118, 210, 0.05);
+            cursor: pointer;
+        }
+
+        .module-item__title {
+            flex: 1;
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .module-item__content {
+            padding: 16px;
+            display: none;
+        }
+
+        .module-item--expanded .module-item__content {
+            display: block;
+        }
+
+        .module-item__details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .module-item__detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .module-item__detail-label {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+            margin-bottom: 4px;
+        }
+
+        .module-item__detail-value {
+            font-weight: 500;
+        }
+
+        .module-item__actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        /* Recent Activities */
+        .activity-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item__icon {
+            margin-right: 16px;
+            margin-top: 2px;
+            color: var(--mdc-theme-primary);
+        }
+
+        .activity-item__content {
+            flex: 1;
+        }
+
+        .activity-item__message {
+            margin: 0 0 4px;
+        }
+
+        .activity-item__time {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        /* Student status indicators */
+        .student-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .student-status--complete {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .student-status--pending {
+            background-color: #fff8e1;
+            color: #f57c00;
+        }
+
+        .student-status--missing {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        /* Scrim (overlay) */
+        .scrim {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index: 4;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .drawer-open .scrim {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Refresh Button */
+        .refresh-button {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--mdc-theme-primary);
+            color: var(--mdc-theme-on-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 3;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .refresh-button:hover {
+            background-color: #1565c0;
+            transform: scale(1.05);
+        }
+
+        .refresh-button:active {
+            transform: scale(0.95);
+        }
+
+        .refresh-button.refreshing {
+            animation: rotate 1s infinite linear;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Progress indicators */
+        .progress-indicator {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .progress-bar--high {
+            background-color: #4caf50;
+        }
+
+        .progress-bar--medium {
+            background-color: #ff9800;
+        }
+
+        .progress-bar--low {
+            background-color: #f44336;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            color: rgba(0, 0, 0, 0.6);
+            display: none;
+            z-index: 2;
+        }
+
+        .status-offline {
+            display: block;
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .connection-status.status-online {
+            display: block;
+            background-color: #d4edda;
+            color: #155724;
+            animation: fadeOut 2s forwards;
+            animation-delay: 3s;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                display: none;
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .drawer-open .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .drawer-open .drawer {
+                transform: translateX(0);
+            }
+
+            .drawer-open .scrim {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .welcome-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .welcome-card__actions {
+                margin-top: 16px;
+            }
+        }
+    </style>
+</head>
+<body class="drawer-open">
+    <!-- App Bar -->
+    <header class="app-bar">
+        <button class="app-bar__menu-button" id="menu-button" aria-label="Menu">
+            <i class="material-icons">menu</i>
+        </button>
+        <h1 class="app-bar__title">Instructor Dashboard</h1>
+        <div class="app-bar__user">
+            <div class="user-avatar" id="user-avatar">AK</div>
+            <div class="user-menu" id="user-menu">
+                <a href="#" class="user-menu__item">
+                    <i class="material-icons">person</i>
+                    <span>Profile</span>
+                </a>
+                <div class="user-menu__divider"></div>
+                <a href="#" class="user-menu__item">
+                    <i class="material-icons">logout</i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Navigation Drawer -->
+        <nav class="drawer" id="drawer">
+            <div class="drawer-header">
+                <h2 class="drawer-header__title">KYTC Academic System</h2>
+            </div>
+            <div class="drawer-content">
+                <ul class="nav-list">
+                    <li>
+                        <a href="#" class="nav-list__item nav-list__item--active">
+                            <i class="material-icons nav-list__item-icon">dashboard</i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">person</i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">assignment</i>
+                            <span>Manage Assessments</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">edit</i>
+                            <span>View/Edit Marks</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">info</i>
+                            <span>About</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-list__item">
+                            <i class="material-icons nav-list__item-icon">logout</i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Scrim (overlay) for drawer on mobile -->
+        <div class="scrim" id="scrim"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Card -->
+            <div class="welcome-card">
+                <div class="welcome-card__content">
+                    <h2 class="welcome-card__title">Welcome, Dr. Ahmed Khalil</h2>
+                    <p class="welcome-card__subtitle">You have 3 modules this semester with 78 students total.</p>
+                </div>
+                <div class="welcome-card__actions">
+                    <button class="mdc-button mdc-button--outlined">
+                        <span class="mdc-button__ripple"></span>
+                        <i class="material-icons mdc-button__icon">assignment</i>
+                        <span class="mdc-button__label">Manage Assessments</span>
+                    </button>
+                    <button class="mdc-button mdc-button--raised">
+                        <span class="mdc-button__ripple"></span>
+                        <i class="material-icons mdc-button__icon">edit</i>
+                        <span class="mdc-button__label">Edit Marks</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Cards -->
+            <div class="dashboard-cards">
+                <!-- Teaching Load Card -->
+                <div class="dashboard-card">
+                    <div class="dashboard-card__header">
+                        <h3 class="dashboard-card__title">Teaching Load</h3>
+                        <div class="dashboard-card__icon">
+                            <i class="material-icons">school</i>
+                        </div>
+                    </div>
+                    <div class="dashboard-card__content">
+                        <p><strong>Current Semester:</strong> 2 (2024-2025)</p>
+                        <p><strong>Assigned Modules:</strong> 3</p>
+                        <p><strong>Total Students:</strong> 78</p>
+                    </div>
+                    <div class="dashboard-card__footer">
+                        <button class="mdc-button mdc-button--unelevated">
+                            <span class="mdc-button__ripple"></span>
+                            <span class="mdc-button__label">View Details</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Assessment Progress Card -->
+                <div class="dashboard-card">
+                    <div class="dashboard-card__header">
+                        <h3 class="dashboard-card__title">Assessment Progress</h3>
+                        <div class="dashboard-card__icon">
+                            <i class="material-icons">assignment_turned_in</i>
+                        </div>
+                    </div>
+                    <div class="dashboard-card__content">
+                        <p><strong>Pending Assessments:</strong> 2</p>
+                        <p><strong>Grading Progress:</strong></p>
+                        <div class="progress-indicator">
+                            <div class="progress-bar progress-bar--high" style="width: 85%"></div>
+                        </div>
+                        <p><strong>Marks Published:</strong> 85%</p>
+                    </div>
+                    <div class="dashboard-card__footer">
+                        <button class="mdc-button mdc-button--unelevated">
+                            <span class="mdc-button__ripple"></span>
+                            <span class="mdc-button__label">View Assessments</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Student Status Card -->
+                <div class="dashboard-card">
+                    <div class="dashboard-card__header">
+                        <h3 class="dashboard-card__title">Student Status</h3>
+                        <div class="dashboard-card__icon">
+                            <i class="material-icons">people</i>
+                        </div>
+                    </div>
+                    <div class="dashboard-card__content">
+                        <p><strong>At Risk Students:</strong> 5</p>
+                        <p><strong>Outstanding Performance:</strong> 12</p>
+                        <p><strong>Pending Follow-ups:</strong> 3</p>
+                    </div>
+                    <div class="dashboard-card__footer">
+                        <button class="mdc-button mdc-button--unelevated">
+                            <span class="mdc-button__ripple"></span>
+                            <span class="mdc-button__label">View Students</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned Modules Section -->
+            <h2>Your Assigned Modules</h2>
+            <ul class="module-list">
+                <!-- Module 1 -->
+                <li class="module-item module-item--expanded">
+                    <div class="module-item__header" onclick="toggleModule(this.parentElement)">
+                        <h3 class="module-item__title">Database Systems</h3>
+                        <i class="material-icons">expand_less</i>
+                    </div>
+                    <div class="module-item__content">
+                        <div class="module-item__details">
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Code</span>
+                                <span class="module-item__detail-value">DB101</span>
+                            </div>
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Program</span>
+                                <span class="module-item__detail-value">Engineering (EN)</span>
+                            </div>
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Level/Semester</span>
+                                <span class="module-item__detail-value">Level I / Semester 2</span>
+                            </div>
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Students</span>
+                                <span class="module-item__detail-value">32</span>
+                            </div>
+                        </div>
+                        <div class="module-item__detail">
+                            <span class="module-item__detail-label">Assessment Status</span>
+                            <div class="progress-indicator">
+                                <div class="progress-bar progress-bar--high" style="width: 90%"></div>
+                            </div>
+                            <span>90% Complete (Activities: 6/6, Follow-up: 30/32, Final: 30/32)</span>
+                        </div>
+                        <div class="module-item__actions">
+                            <button class="mdc-button mdc-button--outlined">
+                                <span class="mdc-button__ripple"></span>
+                                <i class="material-icons mdc-button__icon">assignment</i>
+                                <span class="mdc-button__label">Manage Assessments</span>
+                            </button>
+                            <button class="mdc-button mdc-button--outlined">
+                                <span class="mdc-button__ripple"></span>
+                                <i class="material-icons mdc-button__icon">edit</i>
+                                <span class="mdc-button__label">Edit Marks</span>
+                            </button>
+                            <button class="mdc-button mdc-button--outlined">
+                                <span class="mdc-button__ripple"></span>
+                                <i class="material-icons mdc-button__icon">visibility</i>
+                                <span class="mdc-button__label">View Formal Sheet</span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Module 3 -->
+                <li class="module-item">
+                    <div class="module-item__header" onclick="toggleModule(this.parentElement)">
+                        <h3 class="module-item__title">Software Engineering</h3>
+                        <i class="material-icons">expand_more</i>
+                    </div>
+                    <div class="module-item__content">
+                        <div class="module-item__details">
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Code</span>
+                                <span class="module-item__detail-value">SE101</span>
+                            </div>
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Program</span>
+                                <span class="module-item__detail-value">Engineering (EN)</span>
+                            </div>
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Level/Semester</span>
+                                <span class="module-item__detail-value">Level I / Semester 2</span>
+                            </div>
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Students</span>
+                                <span class="module-item__detail-value">18</span>
+                            </div>
+                        </div>
+                        <div class="module-item__detail">
+                            <span class="module-item__detail-label">Assessment Status</span>
+                            <div class="progress-indicator">
+                                <div class="progress-bar progress-bar--low" style="width: 40%"></div>
+                            </div>
+                            <span>40% Complete (Activities: 2/6, Follow-up: 10/18, Final: 0/18)</span>
+                        </div>
+                        <div class="module-item__actions">
+                            <button class="mdc-button mdc-button--outlined">
+                                <span class="mdc-button__ripple"></span>
+                                <i class="material-icons mdc-button__icon">assignment</i>
+                                <span class="mdc-button__label">Manage Assessments</span>
+                            </button>
+                            <button class="mdc-button mdc-button--outlined">
+                                <span class="mdc-button__ripple"></span>
+                                <i class="material-icons mdc-button__icon">edit</i>
+                                <span class="mdc-button__label">Edit Marks</span>
+                            </button>
+                            <button class="mdc-button mdc-button--outlined">
+                                <span class="mdc-button__ripple"></span>
+                                <i class="material-icons mdc-button__icon">visibility</i>
+                                <span class="mdc-button__label">View Formal Sheet</span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+            <!-- Recent Activities Section -->
+            <h2>Recent Activities</h2>
+            <ul class="activity-list">
+                <li class="activity-item">
+                    <i class="material-icons activity-item__icon">edit</i>
+                    <div class="activity-item__content">
+                        <p class="activity-item__message">You updated marks for <strong>Final Exam</strong> in <strong>Web Development</strong> module.</p>
+                        <span class="activity-item__time">Today, 10:30 AM</span>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <i class="material-icons activity-item__icon">assignment_turned_in</i>
+                    <div class="activity-item__content">
+                        <p class="activity-item__message">You published marks for <strong>Quiz 3</strong> in <strong>Database Systems</strong> module.</p>
+                        <span class="activity-item__time">Yesterday, 3:45 PM</span>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <i class="material-icons activity-item__icon">person</i>
+                    <div class="activity-item__content">
+                        <p class="activity-item__message"><strong>Mohammed Salem</strong> requested clarification on assessment criteria for <strong>Software Engineering</strong>.</p>
+                        <span class="activity-item__time">March 5, 2025</span>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <i class="material-icons activity-item__icon">note_add</i>
+                    <div class="activity-item__content">
+                        <p class="activity-item__message">You created a new assessment <strong>Project 2</strong> in <strong>Web Development</strong> module.</p>
+                        <span class="activity-item__time">March 4, 2025</span>
+                    </div>
+                </li>
+            </ul>
+
+            <!-- Quick Actions Section -->
+            <h2>Quick Actions</h2>
+            <div class="quick-actions">
+                <button class="mdc-button mdc-button--outlined">
+                    <span class="mdc-button__ripple"></span>
+                    <i class="material-icons mdc-button__icon">add</i>
+                    <span class="mdc-button__label">Create Assessment</span>
+                </button>
+                <button class="mdc-button mdc-button--outlined">
+                    <span class="mdc-button__ripple"></span>
+                    <i class="material-icons mdc-button__icon">publish</i>
+                    <span class="mdc-button__label">Publish Marks</span>
+                </button>
+                <button class="mdc-button mdc-button--outlined">
+                    <span class="mdc-button__ripple"></span>
+                    <i class="material-icons mdc-button__icon">description</i>
+                    <span class="mdc-button__label">Generate Report</span>
+                </button>
+                <button class="mdc-button mdc-button--outlined">
+                    <span class="mdc-button__ripple"></span>
+                    <i class="material-icons mdc-button__icon">email</i>
+                    <span class="mdc-button__label">Contact Students</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Refresh Button -->
+    <button class="refresh-button" id="refresh-button" aria-label="Refresh data">
+        <i class="material-icons">refresh</i>
+    </button>
+
+    <!-- Connection Status Indicator -->
+    <div id="connection-status" class="connection-status">
+        Checking connection...
+    </div>
+
+    <!-- Material Components Web JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Material Components
+            const buttons = document.querySelectorAll('.mdc-button');
+            buttons.forEach(button => new mdc.ripple.MDCRipple(button));
+
+            // Toggle drawer
+            const menuButton = document.getElementById('menu-button');
+            const drawer = document.getElementById('drawer');
+            const scrim = document.getElementById('scrim');
+            const body = document.body;
+
+            menuButton.addEventListener('click', function() {
+                body.classList.toggle('drawer-open');
+            });
+
+            scrim.addEventListener('click', function() {
+                body.classList.remove('drawer-open');
+            });
+
+            // User menu toggle
+            const userAvatar = document.getElementById('user-avatar');
+            const userMenu = document.getElementById('user-menu');
+
+            userAvatar.addEventListener('click', function(event) {
+                userMenu.classList.toggle('open');
+                event.stopPropagation();
+            });
+
+            document.addEventListener('click', function() {
+                userMenu.classList.remove('open');
+            });
+
+            userMenu.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+
+            // Module expansion
+            window.toggleModule = function(moduleElement) {
+                moduleElement.classList.toggle('module-item--expanded');
+                
+                const icon = moduleElement.querySelector('.module-item__header i');
+                if (moduleElement.classList.contains('module-item--expanded')) {
+                    icon.textContent = 'expand_less';
+                } else {
+                    icon.textContent = 'expand_more';
+                }
+            };
+
+            // Refresh data button
+            const refreshButton = document.getElementById('refresh-button');
+            
+            refreshButton.addEventListener('click', function() {
+                this.classList.add('refreshing');
+                
+                // Simulate data refresh
+                setTimeout(() => {
+                    this.classList.remove('refreshing');
+                    
+                    // Show online status temporarily
+                    const statusIndicator = document.getElementById('connection-status');
+                    statusIndicator.textContent = 'Data refreshed successfully';
+                    statusIndicator.className = 'connection-status status-online';
+                    
+                    // After some time, hide the status
+                    setTimeout(() => {
+                        statusIndicator.className = 'connection-status';
+                    }, 3000);
+                }, 1500);
+            });
+
+            // Navigation links
+            document.querySelectorAll('.nav-list__item').forEach(item => {
+                item.addEventListener('click', function(event) {
+                    const page = this.querySelector('span').textContent.toLowerCase();
+                    
+                    if (page === 'dashboard') {
+                        // Already on dashboard
+                    } else if (page === 'profile') {
+                        window.location.href = '/instructor/profile';
+                    } else if (page === 'manage assessments') {
+                        window.location.href = '/instructor/assessments';
+                    } else if (page === 'view/edit marks') {
+                        window.location.href = '/instructor/marks';
+                    } else if (page === 'logout') {
+                        // In a real application, this would log the user out
+                        window.location.href = '/login';
+                    }
+                });
+            });
+
+            // Quick action buttons and module action buttons
+            document.querySelectorAll('.quick-actions .mdc-button, .module-item__actions .mdc-button').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.stopPropagation(); // Prevent triggering the module toggle
+                    
+                    const action = this.querySelector('.mdc-button__label').textContent.toLowerCase();
+                    const moduleItem = this.closest('.module-item');
+                    let moduleName = "all modules";
+                    
+                    if (moduleItem) {
+                        moduleName = moduleItem.querySelector('.module-item__title').textContent;
+                    }
+                    
+                    // In a real application, these would navigate to the appropriate pages
+                    // or trigger specific actions
+                    console.log(`Action: ${action} for ${moduleName}`);
+                    
+                    // Show feedback
+                    const statusIndicator = document.getElementById('connection-status');
+                    statusIndicator.textContent = `${action} initiated for ${moduleName}`;
+                    statusIndicator.className = 'connection-status status-online';
+                    
+                    // After some time, hide the status
+                    setTimeout(() => {
+                        statusIndicator.className = 'connection-status';
+                    }, 3000);
+                });
+            });
+
+            // Setup network status monitoring
+            function updateConnectionStatus() {
+                const statusIndicator = document.getElementById('connection-status');
+                const isOnline = navigator.onLine;
+                
+                if (isOnline) {
+                    statusIndicator.textContent = 'Online';
+                    statusIndicator.className = 'connection-status status-online';
+                    
+                    // Hide after some time
+                    setTimeout(() => {
+                        statusIndicator.className = 'connection-status';
+                    }, 3000);
+                } else {
+                    statusIndicator.textContent = 'Offline - Changes will sync when connection is restored';
+                    statusIndicator.className = 'connection-status status-offline';
+                }
+            }
+            
+            // Add event listeners for online/offline events
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+            
+            // Initialize connection status
+            updateConnectionStatus();
+        });
+    </script>
+</body>
+</html>
+                            <button class="mdc-button mdc-button--outlined">
+                                <span class="mdc-button__ripple"></span>
+                                <i class="material-icons mdc-button__icon">visibility</i>
+                                <span class="mdc-button__label">View Formal Sheet</span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Module 2 -->
+                <li class="module-item">
+                    <div class="module-item__header" onclick="toggleModule(this.parentElement)">
+                        <h3 class="module-item__title">Web Development</h3>
+                        <i class="material-icons">expand_more</i>
+                    </div>
+                    <div class="module-item__content">
+                        <div class="module-item__details">
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Code</span>
+                                <span class="module-item__detail-value">WEB101</span>
+                            </div>
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Program</span>
+                                <span class="module-item__detail-value">Engineering (EN)</span>
+                            </div>
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Level/Semester</span>
+                                <span class="module-item__detail-value">Level I / Semester 2</span>
+                            </div>
+                            <div class="module-item__detail">
+                                <span class="module-item__detail-label">Students</span>
+                                <span class="module-item__detail-value">28</span>
+                            </div>
+                        </div>
+                        <div class="module-item__detail">
+                            <span class="module-item__detail-label">Assessment Status</span>
+                            <div class="progress-indicator">
+                                <div class="progress-bar progress-bar--medium" style="width: 75%"></div>
+                            </div>
+                            <span>75% Complete (Activities: 5/6, Follow-up: 25/28, Final: 20/28)</span>
+                        </div>
+                        <div class="module-item__actions">
+                            <button class="mdc-button mdc-button--outlined">
+                                <span class="mdc-button__ripple"></span>
+                                <i class="material-icons mdc-button__icon">assignment</i>
+                                <span class="mdc-button__label">Manage Assessments</span>
+                            </button>
+                            <button class="mdc-button mdc-button--outlined">
+                                <span class="mdc-button__ripple"></span>
+                                <i class="material-icons mdc-button__icon">edit</i>
+                                <span class="mdc-button__label">Edit Marks</span>
+                            </button>
